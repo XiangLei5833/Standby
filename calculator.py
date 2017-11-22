@@ -2,15 +2,10 @@
 
 import sys
 import os
-import multiprocess import Process, Queue
+from multiprocessing import Process, Queue
 
-args = sys.argv[1:]
-index = args.index('-c')
-configfile = args[index+1]
-index = args.index('-d')
-userdatafile = args[index+1]
-
-queue1, queue2 = Queue()
+queue1 = Queue()
+queue2 = Queue()
 
 def salary(userdatafile):
     userdata = {}
@@ -23,19 +18,19 @@ def salary(userdatafile):
                 key = user[0].strip()
                 value = user[1].strip()
                 userdata[key] = value
-        data = userdata.items()
-        queue1.put(data)
         else:
             raise
     except:
         raise
+    data = userdata.items()
+    queue1.put(data)
 
 
-def tax_due(configfile)
+def tax_due(configfile):
     data = queue1.get()
     config = []
     try:
-        if len(sys.argv)>0 and os.path.isfile(configfile)
+        if len(sys.argv)>0 and os.path.isfile(configfile):
             f = open(configfile)
             for c in f:
                 c = c.strip('\n')
@@ -93,6 +88,39 @@ def tax_due(configfile)
     queue2.put(newdata)
 
 
+def write(gongzi):
+    newdata = queue2.get()
+    for sub_data in newdata:
+         try:
+             if len(sys.argv) >0:        
+                 f = open(gongzi, 'a')
+                 f.write(sub_data)
+                 f.write('\n\n')
+             else:
+                 raise
+         except:
+             raise
+    f.close()
+
+
 def main():
+    args = sys.argv[1:]
+    index = args.index('-c')
+    configfile = args[index+1]
+    index = args.index('-d')
+    userdatafile = args[index+1]
+    index = args.index('-o')
+    gongzi = args[index+1]
+
+    p1 = Process(target=salary, args=(configfile,))
+    p2 = Process(target=tax_due, args=(userdatafile,))
+    p3 = Process(target=write, args=(gongzi,))
+    p1.start()
+    p2.start()
+    p3.start()
         
 
+if __name__ == '__main__':
+    main()
+             
+                 
