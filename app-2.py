@@ -34,14 +34,30 @@ class Category(db.Model):
     def __repr__(self):
         return '<Category %s>' % self.name
 
+titles = File.query.all()
+news1 = titles[0]
+news2 = titles[1]
 @app.route('/')
 def index():
-    return render_template('index.html',titles=File.query.all())
+    title = {
+            'title1': news1.title,
+            'title2': news2.title
+            }
+    return render_template('index.html',title=title, titles=titles)
 
 @app.route('/files/<file_id>')
 def file(file_id):
-
-    return render_template('file.html', file_content=file_content, filename=filename)
+    file_content = {
+            'title1': news1.title,
+            'title2': news2.title,
+            'created_time1': news1.created_time,
+            'created_time2': news2.created_time,
+            'content1': news1.content,
+            'content2': news2.content,
+            'type1': news1.category,
+            'type2': news2.category
+            }
+    return render_template('file.html', file_content=file_content, file_id=file_id, titles=titles)
 
 @app.errorhandler(404)
 def not_found(error):
