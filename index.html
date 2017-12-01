@@ -2,7 +2,8 @@
 {% block header %}{% endblock %}
 
 {% block content %}
-    <p>filename: {{name}} </p>
-    <p>title1: {{title.title1}} </p>
-    <p>title2: {{title.title2}} </p>
+    {% for news in titles %}
+        <a href = "{{url_for('file', file_id = news.id)}}"><p> {{news.title}} </p></a>
+        {{tag_list}}
+    {#<a href = "{{url_for('file', file_id = titles[1].id)}}"><p>{{title.title2}} </p></a>#}
 {% endblock %}
