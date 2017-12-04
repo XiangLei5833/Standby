@@ -7,8 +7,8 @@ app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] ='mysql://root@localhost/shiyanlou'
 db = SQLAlchemy(app)
-client = MongoClient('127.0.0.1, 27017')
-db.client = client.shiyanlou
+client = MongoClient('127.0.0.1',27017)
+db_client = client.shiyanlou
 
 class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -38,11 +38,14 @@ class File(db.Model):
             db_client.tag.delete_one({'file_id': self.id})
         else:
             print('tag_name not been found')
-
+     
+    @property
     def tags(self):
-        find_tag = db_client.tag.find_one({'file_id': self.id})
-        tag_list = list(find_tag['tag_name'])
-        return tag_list
+        tags = []
+        find_tag = db_client.tag.find({'file_id': self.id})
+        for tag in find_tag:
+            tags.append(tag['tag_name'])
+        return tags
 
             
 class Category(db.Model):
@@ -54,28 +57,22 @@ class Category(db.Model):
     def __repr__(self):
         return '<Category %s>' % self.name
 
-titles = File.query.all()
-file_tag = File()
-tag_list = file_tag.tags()
-news1 = titles[0]
-news2 = titles[1]
 @app.route('/')
 def index():
-    return render_template('index.html',titles=titles, tag_list=tag_list)
+    titles = File.query.all()
+    return render_template('index.html',titles=titles)
 
 @app.route('/files/<file_id>')
 def file(file_id):
+    file_name = File.query.filter_by(id=file_id).first()
     file_content = {
-            'title1': news1.title,
-            'title2': news2.title,
-            'created_time1': news1.created_time,
-            'created_time2': news2.created_time,
-            'content1': news1.content,
-            'content2': news2.content,
-            'type1': news1.category,
-            'type2': news2.category
+            'title': file_name.title,
+            'created_time': file_name.created_time,
+            'content': file_name.content,
+            'type': file_name.category
             }
-    return render_template('file.html', file_content=file_content, file_id=file_id, titles=titles)
+    file_list = list(file_content.values())
+    return render_template('file.html', file_list=file_list)
 
 @app.errorhandler(404)
 def not_found(error):

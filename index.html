@@ -4,6 +4,6 @@
 {% block content %}
     {% for news in titles %}
         <a href = "{{url_for('file', file_id = news.id)}}"><p> {{news.title}} </p></a>
-        {{tag_list}}
-    {#<a href = "{{url_for('file', file_id = titles[1].id)}}"><p>{{title.title2}} </p></a>#}
+        {{news.tags}}
+    {% endfor %}
 {% endblock %}
